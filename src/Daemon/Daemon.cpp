@@ -234,8 +234,9 @@ int main(int argc, char* argv[])
 	std::string daemonstartup2 = "Bring a towel!";
 	std::string daemonstartup3 = "Why are you here?";
         std::string daemonstartup4 = "The Babel fish is small, yellow, leech-like, and probably the oddest thing in the Universe.";
+	std::string daemonstartup5 = "WHAT ARE YOU WAITING FOR?! SHOOT DAMNIT!";
 	PRNG rng;
-	int rando = rng.getRandomInt(1, 4)
+	int rando = rng.getRandomInt(1, 5)
 	if(rando == 1)
 	{
                 logger(INFO, BRIGHT_GREEN) << daemonstartup << ENDL;
@@ -251,6 +252,10 @@ int main(int argc, char* argv[])
 	if (rando == 4)
 	{
 		logger(INFO, BRIGHT_GREEN) << daemonstartup4 << ENDL;
+	}
+	if (rando == 5)
+	{
+		logger(INFO, BRIGHT_GREEN) << daemonstartup5 << ENDL;
 	}
 	  
 	// Im not exactly sure why I added this
@@ -296,7 +301,7 @@ int main(int argc, char* argv[])
       } else {
         bool results = checkpoints.loadCheckpointsFromFile(checkpoints_file);
         if (!results) {
-          throw std::runtime_error("Failed to load checkpoints");
+          throw std::runtime_error("Failed to load checkpoints, sorry");
         }
       }
     }
@@ -358,7 +363,7 @@ int main(int argc, char* argv[])
     DaemonCommandsHandler dch(ccore, p2psrv, logManager, &rpcServer);
     logger(INFO) << "Initializing p2p server...";
     if (!p2psrv.init(netNodeConfig)) {
-      logger(ERROR, BRIGHT_RED) << "Failed to initialize p2p server.";
+      logger(ERROR, BRIGHT_RED) << "Failed to initialize p2p server. Somethings sorta fucked up probably.";
       return 1;
     }
 
