@@ -24,7 +24,7 @@ VS_VERSION_INFO VERSIONINFO
         VALUE "FileDescription",  PROJECT_NAME " zedwallet " PROJECT_VERSION_LONG
         VALUE "FileVersion",      PROJECT_VERSION_BUILD_NO
         VALUE "LegalCopyright",   PROJECT_COPYRIGHT
-        VALUE "OriginalFilename", "zedwallet.exe"
+        VALUE "OriginalFilename", "42-wallet.exe"
         VALUE "ProductName",      PROJECT_NAME
         VALUE "ProductVersion",   PROJECT_VERSION
       END
