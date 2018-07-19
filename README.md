@@ -44,7 +44,7 @@ Then
 make -j4
 ```
 Boom! You made it :D
-Also if your having permision issues related to build_detect_platform and version.sh in external/rocksdb/build_tools, its a permissions thing. Try running in root or giving those files chmod 777 or something.
+Also if your having permision issues related to build_detect_platform and version.sh in external/rocksdb/build_tools, its a permissions thing. Do chmod +x to version.sh and build_detect_platform (or the whole damn folder if you like)
 
 ## Windows
 
