@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
         std::string daemonstartup4 = "The Babel fish is small, yellow, leech-like, and probably the oddest thing in the Universe.";
 	std::string daemonstartup5 = "WHAT ARE YOU WAITING FOR?! SHOOT DAMNIT!";
 	PRNG rng;
-	int rando = rng.getRandomInt(1, 5)
+	int rando = rng.getRandomInt(1, 5);
 	if(rando == 1)
 	{
                 logger(INFO, BRIGHT_GREEN) << daemonstartup << ENDL;
