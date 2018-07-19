@@ -30,7 +30,7 @@ Alright, now thats out of the way, its time to compile 42!
 
 
 ```
-git clone https://FourtyTwo/42.git
+git clone https://github.com/FourtyTwo/42.git
 ```
 Then
 ```
