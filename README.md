@@ -6,6 +6,7 @@ Its the answer
 
 42 is 42. Thats all you need to know.
 More info is in the [FAQ](https://coin42.co/faq.html) of our site.
+General info about 42 and other various topics is on our Github wiki.
 
 ## Compile instructions
 
