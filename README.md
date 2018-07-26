@@ -1,5 +1,5 @@
 # 42
-![alt text](https://i.imgur.com/ZA4joTq.jpg "da logo")
+![alt text](https://i.imgur.com/upYMguK.png "da logo")
 
 
 #### Its the answer
