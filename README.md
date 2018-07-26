@@ -1,5 +1,5 @@
 # 42
-![alt text](https://github.com/FourtyTwo/42/blob/master/scripts/logo.png "Logo Title Text 1")
+![alt text](https://i.imgur.com/ZA4joTq.jpg "da logo")
 Its the answer
 
 ## What is 42?
