@@ -157,7 +157,10 @@ uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
     return m_upgradeHeightV3;
   } else if (majorVersion == BLOCK_MAJOR_VERSION_4) {
     return m_upgradeHeightV4;
-  } else {
+  }  else if (majorVersion == BLOCK_MAJOR_VERSION_5) {
+	  return m_upgradeHeightV5;
+  }
+     else {
     return static_cast<uint32_t>(-1);
   }
 }
@@ -167,7 +170,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
   assert(alreadyGeneratedCoins <= m_moneySupply);
   assert(m_emissionSpeedFactor > 0 && m_emissionSpeedFactor <= 8 * sizeof(uint64_t));
 
-  uint64_t baseReward = (m_moneySupply - alreadyGeneratedCoins) >> m_emissionSpeedFactor;
+  uint64_t baseReward = (m_moneySupply - alreadyGeneratedCoins) >> getEmissionSpeedFactorByBlockMajorVersion(blockMajorVersion);
   if (alreadyGeneratedCoins == 0 && m_genesisBlockReward != 0) {
     baseReward = m_genesisBlockReward;
     std::cout << "Genesis block reward: " << baseReward << std::endl;
@@ -691,11 +694,23 @@ bool Currency::checkProofOfWork(const CachedBlock& block, Difficulty currentDiff
   case BLOCK_MAJOR_VERSION_2:
   case BLOCK_MAJOR_VERSION_3:
   case BLOCK_MAJOR_VERSION_4:
+  case BLOCK_MAJOR_VERSION_5:
     return checkProofOfWorkV2(block, currentDiffic);
   }
 
   logger(ERROR, BRIGHT_RED) << "Unknown block major version: " << block.getBlock().majorVersion << "." << block.getBlock().minorVersion;
   return false;
+}
+
+uint8_t Currency::getEmissionSpeedFactorByBlockMajorVersion(uint8_t blockMajorVersion) const {
+  uint8_t val = parameters::EMISSION_SPEED_FACTOR;
+  if (blockMajorVersion >= BLOCK_MAJOR_VERSION_5) {
+      val = parameters::EMISSION_SPEED_FACTOR_V2;
+  }
+  if (val <= 0 || val > 8 * sizeof(uint64_t)) {
+    throw std::invalid_argument("Ooopise woopsie! Currency.cpp on Line 711 had a fucky wucky! UWU System96 is wrking vewwy harrrd to fix this UWU *touches bulge*"); // what the actual fuck
+  }
+  return val;
 }
 
 size_t Currency::getApproximateMaximumInputCount(size_t transactionSize, size_t outputCount, size_t mixinCount) const {
@@ -756,6 +771,7 @@ m_fusionTxMinInOutCountRatio(currency.m_fusionTxMinInOutCountRatio),
 m_upgradeHeightV2(currency.m_upgradeHeightV2),
 m_upgradeHeightV3(currency.m_upgradeHeightV3),
 m_upgradeHeightV4(currency.m_upgradeHeightV4),
+m_upgradeHeightV5(currency.m_upgradeHeightV5),
 m_upgradeVotingThreshold(currency.m_upgradeVotingThreshold),
 m_upgradeVotingWindow(currency.m_upgradeVotingWindow),
 m_upgradeWindow(currency.m_upgradeWindow),
@@ -783,7 +799,6 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   blockFutureTimeLimit(parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT);
 
   moneySupply(parameters::MONEY_SUPPLY);
-  emissionSpeedFactor(parameters::EMISSION_SPEED_FACTOR);
 genesisBlockReward(parameters::GENESIS_BLOCK_REWARD);
 
   rewardBlocksWindow(parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW);
@@ -821,6 +836,7 @@ zawyDifficultyBlockVersion(parameters::ZAWY_DIFFICULTY_DIFFICULTY_BLOCK_VERSION)
   upgradeHeightV2(parameters::UPGRADE_HEIGHT_V2);
   upgradeHeightV3(parameters::UPGRADE_HEIGHT_V3);
   upgradeHeightV4(parameters::UPGRADE_HEIGHT_V4);
+  upgradeHeightV5(parameters::UPGRADE_HEIGHT_V5);
   upgradeVotingThreshold(parameters::UPGRADE_VOTING_THRESHOLD);
   upgradeVotingWindow(parameters::UPGRADE_VOTING_WINDOW);
   upgradeWindow(parameters::UPGRADE_WINDOW);
@@ -839,6 +855,15 @@ Transaction CurrencyBuilder::generateGenesisTransaction() {
   m_currency.constructMinerTx(1, 0, 0, 0, 0, 0, ac, tx); // zero fee in genesis
   return tx;
 }
+
+CurrencyBuilder& CurrencyBuilder::emissionSpeedFactor(unsigned int val) {
+  if (val <= 0 || val > 8 * sizeof(uint64_t)) {
+    throw std::invalid_argument("val at emissionSpeedFactor()");
+  }
+  m_currency.m_emissionSpeedFactor = val;
+  return *this;
+}
+
  Transaction CurrencyBuilder::generateGenesisTransaction(const std::vector<AccountPublicAddress>& targets) {
     assert(!targets.empty());
  
@@ -876,14 +901,7 @@ Transaction CurrencyBuilder::generateGenesisTransaction() {
     }
     return tx;
 }
-CurrencyBuilder& CurrencyBuilder::emissionSpeedFactor(unsigned int val) {
-  if (val <= 0 || val > 8 * sizeof(uint64_t)) {
-    throw std::invalid_argument("val at emissionSpeedFactor()");
-  }
 
-  m_currency.m_emissionSpeedFactor = val;
-  return *this;
-}
 
 CurrencyBuilder& CurrencyBuilder::numberOfDecimalPlaces(size_t val) {
   m_currency.m_numberOfDecimalPlaces = val;
