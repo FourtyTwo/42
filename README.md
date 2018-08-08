@@ -68,6 +68,30 @@ Once its down making the build files, simply run this command in the same direct
 ` MSBuild 42.sln /p:Configuration=Release /m `
 Let it do its thing, and once it's done compiling go to /src/ and in the release folder the binaries will be there!
 
-## Mac OSX
+## macOS
 
-I dont have a Mac so I can't do this...sorry :(
+First, you need to download the dependencies of 42, for this the best is to use [Homebrew](https://brew.sh).
+
+Heres the gist of what you need:
+
+[Xcode from the Mac App Store](https://itunes.apple.com/be/app/xcode/id497799835?l=nl&mt=12) and Xcode CLI (install with `xcode-select install`) 
+
+[Cmake](https://cmake.org/)
+
+And `brew install boost readline rocksdb; brew link --force readline`
+
+Alright, now thats out of the way, its time to compile 42!
+
+```
+git clone https://github.com/FourtyTwo/42.git
+```
+Then
+```
+cd 42
+mkdir build
+cd build
+cmake ..
+make
+```
+Boom! You made it :D
+Also if your having permision issues related to build_detect_platform and version.sh in external/rocksdb/build_tools, its a permissions thing. Do `chmod +x to version.sh` and build_detect_platform (or the whole damn folder if you like)
