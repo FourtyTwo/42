@@ -110,11 +110,6 @@ void status(CryptoNote::INode &node)
 
     std::string status;
 
-    if(node.getLastKnownBlockHeight() == 0)
-    {
-        std::cout << WarningMsg("Cannot do status command - your daemon does not appear to be synced.") << std::endl;
-        return;
-    }
     
     std::thread getStatus([&node, &completed, &status]
     {
