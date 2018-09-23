@@ -230,35 +230,35 @@ int main(int argc, char* argv[])
     // configure logging
     logManager.configure(buildLoggerConfiguration(cfgLogLevel, cfgLogFile));
 
-	std::string daemonstartup = "Remember: DONT PANIC!";
-	std::string daemonstartup2 = "Bring a towel!";
-	std::string daemonstartup3 = "Why are you here?";
+  std::string daemonstartup = "Remember: DONT PANIC!";
+  std::string daemonstartup2 = "Bring a towel!";
+  std::string daemonstartup3 = "Why are you here?";
         std::string daemonstartup4 = "The Babel fish is small, yellow, leech-like, and probably the oddest thing in the Universe.";
-	std::string daemonstartup5 = "WHAT ARE YOU WAITING FOR?! SHOOT DAMNIT!";
-	PRNG rng;
-	int rando = rng.getRandomInt(1, 5);
-	if(rando == 1)
-	{
+  std::string daemonstartup5 = "WHAT ARE YOU WAITING FOR?! SHOOT DAMNIT!";
+  PRNG rng;
+  int rando = rng.getRandomInt(1, 5);
+  if(rando == 1)
+  {
                 logger(INFO, BRIGHT_GREEN) << daemonstartup << ENDL;
-	}
-	if(rando == 2)
-	{
-		logger(INFO, BRIGHT_GREEN) << daemonstartup2 << ENDL;
-	}
+  }
+  if(rando == 2)
+  {
+    logger(INFO, BRIGHT_GREEN) << daemonstartup2 << ENDL;
+  }
         if(rando == 3)
-	{
-		logger(INFO, BRIGHT_GREEN) << daemonstartup3 << ENDL;
-	}
-	if (rando == 4)
-	{
-		logger(INFO, BRIGHT_GREEN) << daemonstartup4 << ENDL;
-	}
-	if (rando == 5)
-	{
-		logger(INFO, BRIGHT_GREEN) << daemonstartup5 << ENDL;
-	}
-	  
-	// Im not exactly sure why I added this
+  {
+    logger(INFO, BRIGHT_GREEN) << daemonstartup3 << ENDL;
+  }
+  if (rando == 4)
+  {
+    logger(INFO, BRIGHT_GREEN) << daemonstartup4 << ENDL;
+  }
+  if (rando == 5)
+  {
+    logger(INFO, BRIGHT_GREEN) << daemonstartup5 << ENDL;
+  }
+    
+  // Im not exactly sure why I added this
      
 
     logger(INFO, BRIGHT_GREEN) << "Welcome to " << CryptoNote::CRYPTONOTE_NAME << " v" << PROJECT_VERSION_LONG;

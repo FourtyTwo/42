@@ -8,6 +8,7 @@
 
 #include <atomic>
 
+#include <Common/FormatTools.h>
 #include <Common/StringTools.h>
 
 #include <CryptoNoteCore/Account.h>
@@ -17,18 +18,21 @@
 #include <fstream>
 #endif
 
-#include <Mnemonics/electrum-words.h>
+#include <Mnemonics/Mnemonics.h>
 
+#include <zedwallet/AddressBook.h>
 #include <zedwallet/ColouredMsg.h>
-#include <zedwallet/Open.h>
+#include <zedwallet/Commands.h>
 #include <zedwallet/Fusion.h>
+#include <zedwallet/Menu.h>
+#include <zedwallet/Open.h>
 #include <zedwallet/Sync.h>
 #include <zedwallet/Tools.h>
 #include <zedwallet/Transfer.h>
 #include <zedwallet/Types.h>
 #include <zedwallet/WalletConfig.h>
 
-void changePassword(std::shared_ptr<WalletInfo> &walletInfo)
+void changePassword(std::shared_ptr<WalletInfo> walletInfo)
 {
     /* Check the user knows the current password */
     confirmPassword(walletInfo->walletPass, "Confirm your current password: ");
@@ -49,7 +53,7 @@ void changePassword(std::shared_ptr<WalletInfo> &walletInfo)
     std::cout << SuccessMsg("Your password has been changed!") << std::endl;
 }
 
-void exportKeys(std::shared_ptr<WalletInfo> &walletInfo)
+void exportKeys(std::shared_ptr<WalletInfo> walletInfo)
 {
     confirmPassword(walletInfo->walletPass);
     printPrivateKeys(walletInfo->wallet, walletInfo->viewWallet);
@@ -90,68 +94,11 @@ void printPrivateKeys(CryptoNote::WalletGreen &wallet, bool viewWallet)
 
     if (deterministicPrivateKeys)
     {
-        std::string mnemonicSeed;
-
-        crypto::ElectrumWords::bytes_to_words(privateSpendKey, 
-                                              mnemonicSeed,
-                                              "English");
-
         std::cout << std::endl
                   << SuccessMsg("Mnemonic seed:")
                   << std::endl
-                  << SuccessMsg(mnemonicSeed)
+                  << SuccessMsg(Mnemonics::PrivateKeyToMnemonic(privateSpendKey))
                   << std::endl;
-    }
-}
-
-void status(CryptoNote::INode &node)
-{
-    std::atomic_bool completed(false);
-
-    std::string status;
-
-    
-    std::thread getStatus([&node, &completed, &status]
-    {
-        status = node.getInfo();
-        completed.store(true);
-    });
-
-    const auto startTime = std::chrono::system_clock::now();
-
-    while (!completed.load())
-    {
-        const auto currentTime = std::chrono::system_clock::now();
-
-        if ((currentTime - startTime) > std::chrono::seconds(5))
-        {
-            std::cout << WarningMsg("Unable to get daemon status - has it ")
-                      << WarningMsg("crashed/frozen?")
-                      << std::endl;
-
-            /* Detach the thread so it doesn't call terminate() when we exit
-               scope */
-            getStatus.detach();
-
-            /* Wait a moment for detach to complete */
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-            return;
-        }
-    }
-
-    /* Wait for the thread to clean up so we don't call terminate() on exit */
-    getStatus.join();
-
-    if (status == "Problem retrieving information from RPC server.")
-    {
-        std::cout << WarningMsg("Unable to get daemon status - has it "
-                                "crashed/frozen?")
-                  << std::endl;
-    }
-    else
-    {
-        std::cout << InformationMsg(status) << std::endl;
     }
 }
 
@@ -205,12 +152,9 @@ void balance(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet,
     }
 }
 
-void blockchainHeight(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet)
+void printHeights(uint32_t localHeight, uint32_t remoteHeight,
+                  uint32_t walletHeight)
 {
-    const uint32_t localHeight = node.getLastLocalBlockHeight();
-    const uint32_t remoteHeight = node.getLastKnownBlockHeight();
-    const uint32_t walletHeight = wallet.getBlockCount();
-
     /* This is the height that the wallet has been scanned to. The blockchain
        can be fully updated, but we have to walk the chain to find our
        transactions, and this number indicates that progress. */
@@ -240,7 +184,44 @@ void blockchainHeight(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet)
 
     std::cout << std::endl << "Network blockchain height: "
               << SuccessMsg(std::to_string(remoteHeight)) << std::endl;
+}
 
+void printSyncStatus(uint32_t localHeight, uint32_t remoteHeight,
+                     uint32_t walletHeight)
+{
+    std::string networkSyncPercentage
+        = Common::get_sync_percentage(localHeight, remoteHeight) + "%";
+
+    std::string walletSyncPercentage
+        = Common::get_sync_percentage(walletHeight, remoteHeight) + "%";
+
+    std::cout << "Network sync status: ";
+
+    if (localHeight == remoteHeight)
+    {
+        std::cout << SuccessMsg(networkSyncPercentage) << std::endl;
+    }
+    else
+    {
+        std::cout << WarningMsg(networkSyncPercentage) << std::endl;
+    }
+
+    std::cout << "Wallet sync status: ";
+    
+    /* Small buffer because wallet height is not always completely accurate */
+    if (walletHeight + 1000 > remoteHeight)
+    {
+        std::cout << SuccessMsg(walletSyncPercentage) << std::endl;
+    }
+    else
+    {
+        std::cout << WarningMsg(walletSyncPercentage) << std::endl;
+    }
+}
+
+void printSyncSummary(uint32_t localHeight, uint32_t remoteHeight,
+                      uint32_t walletHeight)
+{
     if (localHeight == 0 && remoteHeight == 0)
     {
         std::cout << WarningMsg("Uh oh, it looks like you don't have ")
@@ -268,21 +249,81 @@ void blockchainHeight(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet)
     }
 }
 
-void reset(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &walletInfo)
+void printPeerCount(size_t peerCount)
 {
+    std::cout << "Peers: " << SuccessMsg(std::to_string(peerCount))
+              << std::endl;
+}
+
+void printHashrate(uint64_t difficulty)
+{
+    /* Offline node / not responding */
+    if (difficulty == 0)
+    {
+        return;
+    }
+
+    /* Hashrate is difficulty divided by block target time */
+    uint32_t hashrate = static_cast<uint32_t>(
+        round(difficulty / CryptoNote::parameters::DIFFICULTY_TARGET)
+    );
+
+    std::cout << "Network hashrate: "
+              << SuccessMsg(Common::get_mining_speed(hashrate))
+              << " (Based on the last local block)" << std::endl;
+}
+
+/* This makes sure to call functions on the node which only return cached
+   data. This ensures it returns promptly, and doesn't hang waiting for a
+   response when the node is having issues. */
+void status(CryptoNote::INode &node, CryptoNote::WalletGreen &wallet)
+{
+    uint32_t localHeight = node.getLastLocalBlockHeight();
+    uint32_t remoteHeight = node.getLastKnownBlockHeight();
+    uint32_t walletHeight = wallet.getBlockCount();
+
+    /* Print the heights of local, remote, and wallet */
+    printHeights(localHeight, remoteHeight, walletHeight);
+
+    std::cout << std::endl;
+
+    /* Print the network and wallet sync status in percentage */
+    printSyncStatus(localHeight, remoteHeight, walletHeight);
+
+    std::cout << std::endl;
+
+    /* Print the network hashrate, based on the last local block */
+    printHashrate(node.getLastLocalBlockHeaderInfo().difficulty);
+
+    /* Print the amount of peers we have */
+    printPeerCount(node.getPeerCount());
+
+    std::cout << std::endl;
+
+    /* Print a summary of the sync status */
+    printSyncSummary(localHeight, remoteHeight, walletHeight);
+}
+
+void reset(CryptoNote::INode &node, std::shared_ptr<WalletInfo> walletInfo)
+{
+    uint64_t scanHeight = getScanHeight();
+
+    std::cout << std::endl
+              << InformationMsg("This process may take some time to complete.")
+              << std::endl
+              << InformationMsg("You can't make any transactions during the ")
+              << InformationMsg("process.")
+              << std::endl << std::endl;
+    
+    if (!confirm("Are you sure?"))
+    {
+        return;
+    }
+    
     std::cout << InformationMsg("Resetting wallet...") << std::endl;
 
-    walletInfo->knownTransactionCount = 0;
+    walletInfo->wallet.reset(scanHeight);
 
-    /* Wallet is now unitialized. You must reinit with load, initWithKeys,
-       or whatever. This function wipes the cache, then saves the wallet. */
-    walletInfo->wallet.clearCacheAndShutdown();
-
-    /* Now, we reopen the wallet. It now has no cached tx's, and balance */
-    walletInfo->wallet.load(walletInfo->walletFileName,
-                            walletInfo->walletPass);
-
-    /* Now we rescan the chain to re-discover our balance and transactions */
     syncWallet(node, walletInfo);
 }
 
@@ -467,7 +508,7 @@ void createIntegratedAddress()
         std::cout << InformationMsg("Address: ");
 
         std::getline(std::cin, address);
-        boost::algorithm::trim(address);
+        trim(address);
 
         std::cout << std::endl;
 
@@ -482,7 +523,7 @@ void createIntegratedAddress()
         std::cout << InformationMsg("Payment ID: ");
 
         std::getline(std::cin, paymentID);
-        boost::algorithm::trim(paymentID);
+        trim(paymentID);
 
         std::vector<uint8_t> extra;
 
@@ -502,4 +543,32 @@ void createIntegratedAddress()
 
     std::cout << InformationMsg(createIntegratedAddress(address, paymentID))
               << std::endl;
+}
+
+void help(std::shared_ptr<WalletInfo> wallet)
+{
+    if (wallet->viewWallet)
+    {
+        printCommands(basicViewWalletCommands());
+    }
+    else
+    {
+        printCommands(basicCommands());
+    }
+}
+
+void advanced(std::shared_ptr<WalletInfo> wallet)
+{
+    /* We pass the offset of the command to know what index to print for
+       command numbers */
+    if (wallet->viewWallet)
+    {
+        printCommands(advancedViewWalletCommands(),
+                      basicViewWalletCommands().size());
+    }
+    else
+    {
+        printCommands(advancedCommands(),
+                      basicCommands().size());
+    }
 }

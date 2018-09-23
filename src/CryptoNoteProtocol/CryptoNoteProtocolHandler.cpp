@@ -1,19 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The TurtleCoin Developers
 //
-// This file is part of Bytecoin.
-//
-// Bytecoin is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Bytecoin is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
+// Please see the included LICENSE file for more information.
 
 #include "CryptoNoteProtocolHandler.h"
 
@@ -28,6 +16,8 @@
 #include "CryptoNoteCore/Currency.h"
 #include "CryptoNoteCore/VerificationContext.h"
 #include "P2p/LevinProtocol.h"
+
+#include <Common/FormatTools.h>
 
 using namespace Logging;
 using namespace Common;
@@ -227,26 +217,64 @@ uint32_t CryptoNoteProtocolHandler::get_current_blockchain_height() {
   return m_core.getTopBlockIndex() + 1;
 }
 
-bool CryptoNoteProtocolHandler::process_payload_sync_data(const CORE_SYNC_DATA& hshd, CryptoNoteConnectionContext& context, bool is_inital) {
-  if (context.m_state == CryptoNoteConnectionContext::state_befor_handshake && !is_inital)
+bool CryptoNoteProtocolHandler::process_payload_sync_data(const CORE_SYNC_DATA& hshd, CryptoNoteConnectionContext& context, bool is_initial) {
+  if (context.m_state == CryptoNoteConnectionContext::state_befor_handshake && !is_initial)
     return true;
 
   if (context.m_state == CryptoNoteConnectionContext::state_synchronizing) {
   } else if (m_core.hasBlock(hshd.top_id)) {
-    if (is_inital) {
+    if (is_initial) {
       on_connection_synchronized();
       context.m_state = CryptoNoteConnectionContext::state_pool_sync_required;
     } else {
       context.m_state = CryptoNoteConnectionContext::state_normal;
     }
   } else {
-    int64_t diff = static_cast<int64_t>(hshd.current_height) - static_cast<int64_t>(get_current_blockchain_height());
+    uint64_t currentHeight = get_current_blockchain_height();
 
-    logger(diff >= 0 ? (is_inital ? Logging::INFO : Logging::DEBUGGING) : Logging::TRACE, Logging::BRIGHT_GREEN) << context <<
-      "Your 42 node is syncing with the network. You are "
-      // << get_current_blockchain_height() << " -> " << hshd.current_height
-      << std::abs(diff) << " blocks (" << std::abs(diff) / (24 * 60 * 60 / m_currency.difficultyTarget()) << " days) "
-      << (diff >= 0 ? std::string("behind") : std::string("ahead of")) << " the frood who really knows where his towel is... " << std::endl;
+    uint64_t remoteHeight = hshd.current_height;
+
+    /* Find the difference between the remote and the local height */
+    int64_t diff = static_cast<int64_t>(remoteHeight) - static_cast<int64_t>(currentHeight);
+
+    /* Find out how many days behind/ahead we are from the remote height */
+    uint64_t days = std::abs(diff) / (24 * 60 * 60 / m_currency.difficultyTarget());
+
+    std::stringstream ss;
+
+    ss << "Your " << CRYPTONOTE_NAME << " node is syncing with the network ";
+
+    /* We're behind the remote node */
+    if (diff >= 0)
+    {
+        ss << "(" << Common::get_sync_percentage(currentHeight, remoteHeight)
+          << "% complete) ";
+
+        ss << "You are " << diff << " blocks (" << days << " days) behind ";
+    }
+    /* We're ahead of the remote node, no need to print percentages */
+    else
+    {
+        ss << "You are " << std::abs(diff) << " blocks (" << days << " days) ahead ";
+    }
+
+    ss << "the current peer you're connected to. Slow and steady wins the race! ";
+
+    auto logLevel = Logging::TRACE;
+    /* Log at different levels depending upon if we're ahead, behind, and if it's 
+      a newly formed connection */
+    if (diff >= 0)
+    {
+        if (is_initial)
+        {
+            logLevel = Logging::INFO;
+        }
+        else
+        {
+            logLevel = Logging::DEBUGGING;    
+        }
+    }
+    logger(logLevel, Logging::BRIGHT_GREEN) << context << ss.str();
 
     logger(Logging::DEBUGGING) << "Remote top block height: " << hshd.current_height << ", id: " << hshd.top_id;
     //let the socket to send response to handshake, but request callback, to let send request data after response
@@ -257,7 +285,7 @@ bool CryptoNoteProtocolHandler::process_payload_sync_data(const CORE_SYNC_DATA& 
   updateObservedHeight(hshd.current_height, context);
   context.m_remote_blockchain_height = hshd.current_height;
 
-  if (is_inital) {
+  if (is_initial) {
     m_peersCount++;
     m_observerManager.notify(&ICryptoNoteProtocolObserver::peerCountUpdated, m_peersCount.load());
   }
@@ -574,7 +602,7 @@ bool CryptoNoteProtocolHandler::request_missing_objects(CryptoNoteConnectionCont
     requestMissingPoolTransactions(context);
 
     context.m_state = CryptoNoteConnectionContext::state_normal;
-    logger(Logging::INFO, Logging::BRIGHT_GREEN) << context << "Successfully synchronized with the 42 Network! But you brought a towel right?";
+    logger(Logging::INFO, Logging::BRIGHT_GREEN) << context << "Successfully synchronized with the 42 Network.";
     on_connection_synchronized();
   }
   return true;
@@ -585,16 +613,14 @@ bool CryptoNoteProtocolHandler::on_connection_synchronized() {
   if (m_synchronized.compare_exchange_strong(val_expected, true)) {
     logger(Logging::INFO)
       << ENDL ;
-      logger(INFO, BRIGHT_MAGENTA) << "===[ 42 Tip! ]=============================" << ENDL ;
+      logger(INFO, BRIGHT_MAGENTA) << "===[ 42 Tips! ]=============================" << ENDL ;
       logger(INFO, WHITE) << " Always exit 42d and zedwallet with the \"exit\" command to preserve your chain and wallet data." << ENDL ;
-      logger(INFO, WHITE) << " Use the \"help\" command to see a list of available commands." << ENDL ;
-      logger(INFO, WHITE) << " Use the \"export_keys\" command in zedwallet to display your keys for restoring a corrupted wallet." << ENDL ;
-      logger(INFO, WHITE) << " If you need more assistance, visit the #42-support channel in the 42 Discord Chat - https://discord.gg/Wbc3Z59" << ENDL ;
+      logger(INFO, WHITE) << " Never take datura! It's a nightmare of a drug and will only kill you and or scar you mentally." << ENDL ;
+      logger(INFO, WHITE) << " Season 5 of Bojack Horseman came out, you should watch it" << ENDL ;
+      logger(INFO, WHITE) << " If you need more assistance, visit the 42 discord. System is always happy to help as long as they have cash" << ENDL ;
       logger(INFO, BRIGHT_MAGENTA) << "===================================================" << ENDL << ENDL ;
 
-	  std::string coolio = "Your daemon is synced! Now open up your wallet damnit!";
-      logger(INFO, BRIGHT_GREEN) << coolio << ENDL;
-      
+      logger(INFO, BRIGHT_GREEN) << "Here I am, the brain the size of a planet, and I'm syncing the 42 daemon.";
 
     m_observerManager.notify(&ICryptoNoteProtocolObserver::blockchainSynchronized, m_core.getTopBlockIndex());
   }
@@ -676,7 +702,7 @@ void CryptoNoteProtocolHandler::relayTransactions(const std::vector<BinaryArray>
 }
 
 void CryptoNoteProtocolHandler::requestMissingPoolTransactions(const CryptoNoteConnectionContext& context) {
-  if (context.version < P2PProtocolVersion::V1) {
+  if (context.version < 1) {
     return;
   }
 
@@ -713,16 +739,16 @@ void CryptoNoteProtocolHandler::updateObservedHeight(uint32_t peerHeight, const 
       }
     }
   }
-  
+
   {
     std::lock_guard<std::mutex> lock(m_blockchainHeightMutex);
     if (peerHeight > m_blockchainHeight) {
       m_blockchainHeight = peerHeight;
-      logger(Logging::INFO, Logging::BRIGHT_GREEN) << "New Top Block Detected: " << peerHeight; 
+      logger(Logging::INFO, Logging::BRIGHT_GREEN) << "New Top Block Detected: " << peerHeight;
     }
   }
 
-  
+
   if (updated) {
     logger(TRACE) << "Observed height updated: " << m_observedHeight;
     m_observerManager.notify(&ICryptoNoteProtocolObserver::lastKnownBlockHeightUpdated, m_observedHeight);
@@ -751,7 +777,7 @@ uint32_t CryptoNoteProtocolHandler::getObservedHeight() const {
 
 uint32_t CryptoNoteProtocolHandler::getBlockchainHeight() const {
   std::lock_guard<std::mutex> lock(m_blockchainHeightMutex);
-  return m_blockchainHeight;  
+  return m_blockchainHeight;
 };
 
 bool CryptoNoteProtocolHandler::addObserver(ICryptoNoteProtocolObserver* observer) {

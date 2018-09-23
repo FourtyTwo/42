@@ -13,7 +13,7 @@ namespace WalletConfig
     const std::string addressPrefix = "foUr";
 
     /* Your coins 'Ticker', e.g. Monero = XMR, Bitcoin = BTC */
-    const std::string ticker = "42";
+    const std::string ticker = "FRTY";
 
     /* The filename to output the CSV to in save_csv */
     const std::string csvFilename = "transactions.csv";
@@ -28,14 +28,15 @@ namespace WalletConfig
     /* The name to call this wallet */
     const std::string walletName = "42-wallet";
 
-    /* The name of walletd, the programmatic rpc interface to a wallet */
+    /* The name of service/walletd, the programmatic rpc interface to a
+       wallet */
     const std::string walletdName = "walletd";
 
     /* The full name of your crypto */
     const std::string coinName = std::string(CryptoNote::CRYPTONOTE_NAME);
 
     /* Where can your users contact you for support? E.g. discord */
-    const std::string contactLink = "https://discord.gg/z3zwZje";
+    const std::string contactLink = "https://discord.gg/AuCK4Rr";
 
 
     /* The number of decimals your coin has */
@@ -46,12 +47,13 @@ namespace WalletConfig
     /* The length of a standard address for your coin */
     const long unsigned int standardAddressLength = 98;
 
-    /* The length of an integrated address for your coin */
-    const long unsigned int integratedAddressLength = 233;
-
-
-    /* The mixin value to use with transactions */
-    const uint64_t defaultMixin = CryptoNote::parameters::DEFAULT_MIXIN;
+    /* The length of an integrated address for your coin - It's the same as
+       a normal address, but there is a paymentID included in there - since
+       payment ID's are 64 chars, and base58 encoding is done by encoding
+       chunks of 8 chars at once into blocks of 11 chars, we can calculate
+       this automatically */
+    const long unsigned int integratedAddressLength = standardAddressLength
+                                                    + ((64 * 11) / 8);
 
     /* The default fee value to use with transactions (in ATOMIC units!) */
     const uint64_t defaultFee = CryptoNote::parameters::MINIMUM_FEE; 

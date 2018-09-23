@@ -489,7 +489,7 @@ void Core::getTransactions(const std::vector<Crypto::Hash>& transactionHashes, s
   missedHashes.insert(missedHashes.end(), leftTransactions.begin(), leftTransactions.end());
 }
 
-Difficulty Core::getBlockDifficulty(uint32_t blockIndex) const {
+uint64_t Core::getBlockDifficulty(uint32_t blockIndex) const {
   throwIfNotInitialized();
   IBlockchainCache* mainChain = chainsLeaves[0];
   auto difficulties = mainChain->getLastCumulativeDifficulties(2, blockIndex, addGenesisBlock);
@@ -502,7 +502,7 @@ Difficulty Core::getBlockDifficulty(uint32_t blockIndex) const {
 }
 
 // TODO: just use mainChain->getDifficultyForNextBlock() ?
-Difficulty Core::getDifficultyForNextBlock() const {
+uint64_t Core::getDifficultyForNextBlock() const {
   throwIfNotInitialized();
   IBlockchainCache* mainChain = chainsLeaves[0];
 
@@ -960,6 +960,7 @@ bool Core::validateMixin(const std::vector<CachedTransaction> transactions,
     /* We also need to ensure that the mixin enforced is for the limit that
      was correct when the block was formed - i.e. if 0 mixin was allowed at
      block 100, but is no longer allowed - we should still validate block 100 */
+    // so get this im playing with my gi joe action figures and mommy doesnt buy me chicken nuggies wtf
     if (height >= CryptoNote::parameters::MIXIN_LIMITS_V2_HEIGHT)
     {
         minMixin = CryptoNote::parameters::MINIMUM_MIXIN_V2;
@@ -1043,7 +1044,8 @@ bool Core::isTransactionValidForPool(const CachedTransaction& cachedTransaction,
     return false;
   }
 
-  bool isFusion = fee == 0 && currency.isFusionTransaction(cachedTransaction.getTransaction(), cachedTransaction.getTransactionBinaryArray().size());
+  bool isFusion = fee == 0 && currency.isFusionTransaction(cachedTransaction.getTransaction(), cachedTransaction.getTransactionBinaryArray().size(), getTopBlockIndex());
+
   if (!isFusion && fee < currency.minimumFee()) {
     logger(Logging::WARNING) << "Transaction " << cachedTransaction.getTransactionHash()
       << " is not valid. Reason: fee is too small and it's not a fusion transaction";
@@ -1096,7 +1098,7 @@ bool Core::getPoolChangesLite(const Crypto::Hash& lastBlockHash, const std::vect
 }
 
 bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, const BinaryArray& extraNonce,
-                            Difficulty& difficulty, uint32_t& height) const {
+                            uint64_t& difficulty, uint32_t& height) const {
   throwIfNotInitialized();
 
   height = getTopBlockIndex() + 1;
@@ -1530,8 +1532,8 @@ std::error_code Core::validateBlock(const CachedBlock& cachedBlock, IBlockchainC
     return error::BlockValidationError::TIMESTAMP_TOO_FAR_IN_FUTURE;
   }
 
-  auto timestamps = cache->getLastTimestamps(currency.timestampCheckWindow(), previousBlockIndex, addGenesisBlock);
-  if (timestamps.size() >= currency.timestampCheckWindow()) {
+  auto timestamps = cache->getLastTimestamps(currency.timestampCheckWindow(previousBlockIndex+1), previousBlockIndex, addGenesisBlock);
+  if (timestamps.size() >= currency.timestampCheckWindow(previousBlockIndex+1)) {
     auto median_ts = Common::medianValue(timestamps);
     if (block.timestamp < median_ts) {
       return error::BlockValidationError::TIMESTAMP_TOO_FAR_IN_PAST;
@@ -2442,3 +2444,4 @@ std::time_t Core::getStartTime() const
 }
 
 }
+

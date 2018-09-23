@@ -1,7 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2018, The TurtleCoin Developers
-// 
+//
 // Please see the included LICENSE file for more information.
 
 #pragma once
@@ -20,10 +20,11 @@ const uint64_t DIFFICULTY_TARGET                             = 30; // seconds
 const uint32_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
-const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 0x1cbd67;  //foUr
+const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 0x1cbd67;
 const uint32_t CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 10;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V3         = 3 * DIFFICULTY_TARGET;
+const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V4         = 6 * DIFFICULTY_TARGET;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 60;
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V3          = 11;
@@ -39,21 +40,25 @@ const uint64_t DIFFICULTY_WINDOW_V3                          = 60;
 const uint64_t DIFFICULTY_BLOCKS_COUNT_V3                    = DIFFICULTY_WINDOW_V3 + 1;
 
 const unsigned EMISSION_SPEED_FACTOR                         = 24;
-const unsigned EMISSION_SPEED_FACTOR_V2                      = 30; // okbuddyretard
+const unsigned EMISSION_SPEED_FACTOR_V2 = 30; // okbuddyretard
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
 /* Premine amount */
 const uint64_t GENESIS_BLOCK_REWARD                          = UINT64_C(0);
 
-/* How to generate a premine:
 
+/* How to generate a premine:
 1) DONT FUCKING MAKE A PREMINE
 2) DONT BE A SHITHEAD
 3) ???
 4) Profit $$$
-
 */
 const char     GENESIS_COINBASE_TX_HEX[]                     = "010a01ff0001def9f70b029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101a965e31d4bed0e3f8684960a4e9f4cee17a095b33f4535cf01efd71fc52da5d5";
+
+/* This is the unix timestamp of the first "mined" block (technically block 2, not the genesis block)
+   You can get this value by doing "print_block 2" in TurtleCoind. It is used to know what timestamp
+   to import from when the block height cannot be found in the node or the node is offline. */
+const uint64_t GENESIS_BLOCK_TIMESTAMP                       = 1531612950;
 
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 100000; //size of block (bytes) after which reward for block calculated using block size
@@ -66,18 +71,22 @@ const uint64_t MINIMUM_FEE                                   = UINT64_C(10);
 
 const uint64_t MINIMUM_MIXIN_V1                              = 0;
 const uint64_t MAXIMUM_MIXIN_V1                              = 100;
+
 const uint64_t MINIMUM_MIXIN_V2                              = 5;
 const uint64_t MAXIMUM_MIXIN_V2                              = 42;
 
+/* The heights to activate the mixin limits at */
 const uint32_t MIXIN_LIMITS_V1_HEIGHT                        = 0;
 const uint32_t MIXIN_LIMITS_V2_HEIGHT                        = 1;
 
-const uint64_t DEFAULT_MIXIN                                 = MINIMUM_MIXIN_V2;
+// we wuz kangz
+const uint64_t DEFAULT_MIXIN = MINIMUM_MIXIN_V2;
 
 const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10);
 const uint64_t DEFAULT_DUST_THRESHOLD_V2                     = UINT64_C(0);
 
 const uint32_t DUST_THRESHOLD_V2_HEIGHT                      = MIXIN_LIMITS_V2_HEIGHT;
+const uint32_t FUSION_DUST_THRESHOLD_HEIGHT_V2               = 800000;
 
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = 17;
@@ -112,7 +121,7 @@ const uint32_t UPGRADE_HEIGHT_V2                             = 1;
 const uint32_t UPGRADE_HEIGHT_V3                             = 2;
 const uint32_t UPGRADE_HEIGHT_V4                             = 3; // Upgrade height for CN-Lite Variant 1 switch.
 const uint32_t UPGRADE_HEIGHT_V5                             = 55000; // Upgrade to make shit cool
-const uint32_t UPGRADE_HEIGHT_CURRENT                        = UPGRADE_HEIGHT_V5; // wtf
+const uint32_t UPGRADE_HEIGHT_CURRENT = UPGRADE_HEIGHT_V5; // wtf
 const unsigned UPGRADE_VOTING_THRESHOLD                      = 90;               // percent
 const uint32_t UPGRADE_VOTING_WINDOW                         = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY;  // blocks
 const uint32_t UPGRADE_WINDOW                                = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY;  // blocks
@@ -122,10 +131,14 @@ static_assert(UPGRADE_VOTING_WINDOW > 1, "Bad UPGRADE_VOTING_WINDOW");
 /* Block heights we are going to have hard forks at */
 const uint64_t FORK_HEIGHTS[] =
 {
-  9999999999,
+  55000,
   9999999998,
   9999999999 // We dont plan on forking naytime soon
 };          // future me - i was very wrong 
+
+
+/* MAKE SURE TO UPDATE THIS VALUE WITH EVERY MAJOR RELEASE BEFORE A FORK */
+const uint64_t SOFTWARE_SUPPORTED_FORK_INDEX                 = 1;
 
 const uint64_t FORK_HEIGHTS_SIZE = sizeof(FORK_HEIGHTS) / sizeof(*FORK_HEIGHTS);
 
@@ -171,6 +184,11 @@ const int      RPC_DEFAULT_PORT                              =  4242;
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                =  1000;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 =  5000;
 
+// P2P Network Configuration Section - This defines our current P2P network version
+// and the minimum version for communication between nodes
+const uint8_t  P2P_CURRENT_VERSION                           = 2;
+const uint8_t  P2P_MINIMUM_VERSION                           = 1;
+
 const size_t   P2P_CONNECTION_MAX_WRITE_BUFFER_SIZE          = 32 * 1024 * 1024; // 32 MB
 const uint32_t P2P_DEFAULT_CONNECTIONS_COUNT                 = 8;
 const size_t   P2P_DEFAULT_WHITELIST_CONNECTIONS_PERCENT     = 70;
@@ -183,10 +201,12 @@ const uint64_t P2P_DEFAULT_INVOKE_TIMEOUT                    = 60 * 2 * 1000; //
 const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000;          // 5 seconds
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "";
 
+const char     LATEST_VERSION_URL[]                          = "http://coin42.co";
 const static boost::uuids::uuid CRYPTONOTE_NETWORK =
 {
     {   0x54, 0xc0, 0x42, 0x34, 0x42, 0xd5, 0x42, 0xa5, 0x49, 0x42, 0x42, 0x42, 0x6b, 0x11, 0x42, 0x42  } // need a babel fish?
 };
+
 
 const char* const SEED_NODES[] = {
   "35.229.97.217:4200", // node1

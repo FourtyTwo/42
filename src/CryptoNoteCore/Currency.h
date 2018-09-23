@@ -15,7 +15,6 @@
 #include "../Logging/LoggerRef.h"
 #include "CachedBlock.h"
 #include "CryptoNoteBasic.h"
-#include "Difficulty.h"
 
 namespace CryptoNote {
 
@@ -29,8 +28,18 @@ public:
   uint64_t publicAddressBase58Prefix() const { return m_publicAddressBase58Prefix; }
   uint32_t minedMoneyUnlockWindow() const { return m_minedMoneyUnlockWindow; }
 
-  size_t timestampCheckWindow() const { return m_timestampCheckWindow; }
-  uint64_t blockFutureTimeLimit() const { return m_blockFutureTimeLimit; }
+  size_t timestampCheckWindow(uint32_t blockHeight) const
+  {
+      if (blockHeight >= CryptoNote::parameters::LWMA_2_DIFFICULTY_BLOCK_INDEX)
+      {
+          return CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V3;
+      }
+      else
+      {
+          return m_timestampCheckWindow;
+      }
+  }
+
   uint64_t blockFutureTimeLimit(uint32_t blockHeight) const
   {
       if (blockHeight >= CryptoNote::parameters::LWMA_2_DIFFICULTY_BLOCK_INDEX)
@@ -67,22 +76,29 @@ public:
 
       return m_defaultDustThreshold;
   }
+  uint64_t defaultFusionDustThreshold(uint32_t height) const {
+      if (height >= CryptoNote::parameters::FUSION_DUST_THRESHOLD_HEIGHT_V2)
+      {
+          return CryptoNote::parameters::DEFAULT_DUST_THRESHOLD_V2;
+      }
+
+      return m_defaultDustThreshold;
+  }
 
   uint64_t difficultyTarget() const { return m_difficultyTarget; }
-  uint64_t difficultyTarget(uint32_t blockMajorVersion) const
+    uint64_t difficultyTarget(uint32_t blockMajorVersion) const
   {
-	  if(blockMajorVersion >= BLOCK_MAJOR_VERSION_5)
-	  {
-		  return CryptoNote::parameters::DIFFICULTY_TARGET;
-	  }
-	  else
-	  {
-		  return CryptoNote::parameters::DIFFICULTY_TARGET; // marjiuanna
-	  }
+    if(blockMajorVersion >= BLOCK_MAJOR_VERSION_5)
+    {
+      return CryptoNote::parameters::DIFFICULTY_TARGET;
+    }
+    else
+    {
+      return CryptoNote::parameters::DIFFICULTY_TARGET; // marjiuanna
+    }
   }
   
   // this block of code does nothing
-  
   size_t difficultyWindow() const { return m_difficultyWindow; }
 size_t difficultyWindowByBlockVersion(uint8_t blockMajorVersion) const;
   size_t difficultyLag() const { return m_difficultyLag; }
@@ -124,11 +140,12 @@ size_t difficultyBlocksCountByBlockVersion(uint8_t blockMajorVersion, uint32_t h
 
   const BlockTemplate& genesisBlock() const { return cachedGenesisBlock->getBlock(); }
   const Crypto::Hash& genesisBlockHash() const { return cachedGenesisBlock->getBlockHash(); }
+   
+   uint8_t getEmissionSpeedFactorByBlockMajorVersion(uint8_t blockMajorVersion) const; 
+  
 
-  uint8_t getEmissionSpeedFactorByBlockMajorVersion(uint8_t blockMajorVersion) const; 
-  
-  bool getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) const; // jfc
-  
+ bool getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) const; // jfc
+
   size_t maxBlockCumulativeSize(uint64_t height) const;
 
   bool constructMinerTx(uint8_t blockMajorVersion, uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
@@ -148,14 +165,13 @@ size_t difficultyBlocksCountByBlockVersion(uint8_t blockMajorVersion, uint32_t h
   std::string formatAmount(int64_t amount) const;
   bool parseAmount(const std::string& str, uint64_t& amount) const;
 
-  Difficulty getNextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<Difficulty> cumulativeDifficulties) const;
-  Difficulty nextDifficulty(std::vector<uint64_t> timestamps, std::vector<Difficulty> cumulativeDifficulties) const;
-Difficulty nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<Difficulty> cumulativeDifficulties) const;
-  Difficulty nextDifficultyV3(std::vector<uint64_t> timestamps, std::vector<Difficulty> cumulative_difficulties) const;
+  uint64_t getNextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<uint64_t> cumulativeDifficulties) const;
+  uint64_t nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<uint64_t> cumulativeDifficulties) const;
 
-  bool checkProofOfWorkV1(const CachedBlock& block, Difficulty currentDifficulty) const;
-  bool checkProofOfWorkV2(const CachedBlock& block, Difficulty currentDifficulty) const;
-  bool checkProofOfWork(const CachedBlock& block, Difficulty currentDifficulty) const;
+
+  bool checkProofOfWorkV1(const CachedBlock& block, uint64_t currentDifficulty) const;
+  bool checkProofOfWorkV2(const CachedBlock& block, uint64_t currentDifficulty) const;
+  bool checkProofOfWork(const CachedBlock& block, uint64_t currentDifficulty) const;
 
   Currency(Currency&& currency);
 
@@ -303,7 +319,7 @@ public:
   CurrencyBuilder& upgradeHeightV2(uint32_t val) { m_currency.m_upgradeHeightV2 = val; return *this; }
   CurrencyBuilder& upgradeHeightV3(uint32_t val) { m_currency.m_upgradeHeightV3 = val; return *this; }
   CurrencyBuilder& upgradeHeightV4(uint32_t val) { m_currency.m_upgradeHeightV4 = val; return *this; }
-  CurrencyBuilder& upgradeHeightV5(uint32_t val) { m_currency.m_upgradeHeightV5 = val; return *this; }
+  CurrencyBuilder& upgradeHeightV5(uint32_t val) { m_currency.m_upgradeHeightV5 = val; return *this; } 
   CurrencyBuilder& upgradeVotingThreshold(unsigned int val);
   CurrencyBuilder& upgradeVotingWindow(uint32_t val) { m_currency.m_upgradeVotingWindow = val; return *this; }
   CurrencyBuilder& upgradeWindow(uint32_t val);

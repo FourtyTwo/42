@@ -24,25 +24,25 @@ RUN apt-get update && \
       gcc-4.9 \
       g++-4.9 \
       git cmake \
-      libboost1.58-all-dev \
-      librocksdb-dev && \
-    git clone https://github.com/FourtyTwo/42.git /src/42 && \
-    cd /src/42 && \
+      libboost1.58-all-dev && \
+    git clone https://github.com/turtlecoin/turtlecoin.git /src/turtlecoin && \
+    cd /src/turtlecoin && \
+    git checkout $TURTLECOIN_BRANCH && \
     mkdir build && \
     cd build && \
     cmake -DCMAKE_CXX_FLAGS="-g0 -Os -fPIC -std=gnu++11" .. && \
     make -j$(nproc) && \
     mkdir -p /usr/local/bin && \
-    cp src/42d /usr/local/bin/42d && \
+    cp src/TurtleCoind /usr/local/bin/TurtleCoind && \
     cp src/walletd /usr/local/bin/walletd && \
-    cp src/42-wallet /usr/local/bin/42-wallet && \
+    cp src/zedwallet /usr/local/bin/zedwallet && \
     cp src/miner /usr/local/bin/miner && \
-    strip /usr/local/bin/42d && \
+    strip /usr/local/bin/TurtleCoind && \
     strip /usr/local/bin/walletd && \
-    strip /usr/local/bin/42-wallet && \
+    strip /usr/local/bin/zedwallet && \
     strip /usr/local/bin/miner && \
     cd / && \
-    rm -rf /src/42 && \
+    rm -rf /src/turtlecoin && \
     apt-get remove -y build-essential python-dev gcc-4.9 g++-4.9 git cmake libboost1.58-all-dev librocksdb-dev && \
     apt-get autoremove -y && \
     apt-get install -y  \
@@ -56,27 +56,27 @@ RUN apt-get update && \
       libboost-program-options1.58.0 \
       libicu55
 
-# setup the 42d service
-RUN useradd -r -s /usr/sbin/nologin -m -d /var/lib/42d 42d && \
-    useradd -s /bin/bash -m -d /home/42 42 && \
-    mkdir -p /etc/services.d/42d/log && \
-    mkdir -p /var/log/42d && \
-    echo "#!/usr/bin/execlineb" > /etc/services.d/42d/run && \
-    echo "fdmove -c 2 1" >> /etc/services.d/42d/run && \
-    echo "cd /var/lib/42d" >> /etc/services.d/42d/run && \
-    echo "export HOME /var/lib/42d" >> /etc/services.d/42d/run && \
-    echo "s6-setuidgid 42d /usr/local/bin/42d" >> /etc/services.d/42d/run && \
-    chmod +x /etc/services.d/42d/run && \
-    chown nobody:nogroup /var/log/42d && \
-    echo "#!/usr/bin/execlineb" > /etc/services.d/42d/log/run && \
-    echo "s6-setuidgid nobody" >> /etc/services.d/42d/log/run && \
-    echo "s6-log -bp -- n20 s1000000 /var/log/42d" >> /etc/services.d/42d/log/run && \
-    chmod +x /etc/services.d/42d/log/run && \
-    echo "/var/lib/42d true turtlecoind 0644 0755" > /etc/fix-attrs.d/42d-home && \
-    echo "/home/42 true 42 0644 0755" > /etc/fix-attrs.d/42-home && \
-    echo "/var/log/42d true nobody 0644 0755" > /etc/fix-attrs.d/42d-logs
+# setup the turtlecoind service
+RUN useradd -r -s /usr/sbin/nologin -m -d /var/lib/turtlecoind turtlecoind && \
+    useradd -s /bin/bash -m -d /home/turtlecoin turtlecoin && \
+    mkdir -p /etc/services.d/turtlecoind/log && \
+    mkdir -p /var/log/turtlecoind && \
+    echo "#!/usr/bin/execlineb" > /etc/services.d/turtlecoind/run && \
+    echo "fdmove -c 2 1" >> /etc/services.d/turtlecoind/run && \
+    echo "cd /var/lib/turtlecoind" >> /etc/services.d/turtlecoind/run && \
+    echo "export HOME /var/lib/turtlecoind" >> /etc/services.d/turtlecoind/run && \
+    echo "s6-setuidgid turtlecoind /usr/local/bin/TurtleCoind" >> /etc/services.d/turtlecoind/run && \
+    chmod +x /etc/services.d/turtlecoind/run && \
+    chown nobody:nogroup /var/log/turtlecoind && \
+    echo "#!/usr/bin/execlineb" > /etc/services.d/turtlecoind/log/run && \
+    echo "s6-setuidgid nobody" >> /etc/services.d/turtlecoind/log/run && \
+    echo "s6-log -bp -- n20 s1000000 /var/log/turtlecoind" >> /etc/services.d/turtlecoind/log/run && \
+    chmod +x /etc/services.d/turtlecoind/log/run && \
+    echo "/var/lib/turtlecoind true turtlecoind 0644 0755" > /etc/fix-attrs.d/turtlecoind-home && \
+    echo "/home/turtlecoin true turtlecoin 0644 0755" > /etc/fix-attrs.d/turtlecoin-home && \
+    echo "/var/log/turtlecoind true nobody 0644 0755" > /etc/fix-attrs.d/turtlecoind-logs
 
-VOLUME ["/var/lib/42d", "/home/42","/var/log/42d"]
+VOLUME ["/var/lib/turtlecoind", "/home/turtlecoin","/var/log/turtlecoind"]
 
 ENTRYPOINT ["/init"]
-CMD ["/usr/bin/execlineb", "-P", "-c", "emptyenv cd /home/42 export HOME /home/42 s6-setuidgid 42 /bin/bash"]
+CMD ["/usr/bin/execlineb", "-P", "-c", "emptyenv cd /home/turtlecoin export HOME /home/turtlecoin s6-setuidgid turtlecoin /bin/bash"]
