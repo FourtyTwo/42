@@ -40,11 +40,11 @@ This is the core implementation of 42. It is open source and completely free to 
 
 42 is a 100% community-sponsored endeavor. If you want to help the project out, the best way would be to contribute to the codebase! Alternatively, donations can be made so we can build that restaurant I've been thinking about.
 
-The 42 donation address is: ` ` (viewkey: ` `)
+The 42 donation address is: `foUrDvc6vtJYMvqpx4oydJjL445udJ83M8rAqpkF8hEcbyLCp5MhvLaLGXtVYkqVXDG8YEpGBU7F241FtWXVCFEK7EMgnjrsM8 ` (viewkey: `32ceccc14433c456d58ee471893f7f79db3c57f8acfd2bc607ecbe89c9606e03 `)
 
-The Monero donation address is: `44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A` (viewkey: `f359631075708155cc3d92a32b75a7d02a5dcf27756707b47a2b31b21c389501`)
+The Monero donation address is: `todo` (viewkey: `todo`)
 
-The Bitcoin donation address is: `1KTexdemPdxSBcG55heUuTjDRYqbC5ZL8H`
+The Bitcoin donation address is: `todo`
 
 ## License
 
