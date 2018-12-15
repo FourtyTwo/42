@@ -1,5 +1,8 @@
 # 42
 
+# Please note that this is a development branch and should not be used to create release or production builds.
+# Builds made on the development branch will often not compile, will not work as intended, or will be incompatible with the current Network.
+
 Copyright (c) 2014-2018 The Monero Project.
 Copyright (c) 2018-2018 The 42 Project.
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
