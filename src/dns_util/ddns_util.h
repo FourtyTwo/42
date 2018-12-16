@@ -25,12 +25,14 @@ class ddns_util {
   std::string return_dns_ip_by_hash(std::string hash); // Returns DDNS IP by hash
   bool verify_ddns_list(); // Verifys current DDNS list to make sure there isn't any invalid DDNS
   bool verify_ddns_transaction(ddns_transaction ddns_tx); // Verifies a certain DDNS transaction
+  bool push_ddns_to_blockchain(ddns_object ddns_obj); // Verifies and pushes DDNS object to blockchain if valid
   
   
   private:
   // variables
   int current_ddns_count; // Int of all current dns names in blockchain
   bool all_dns_verified; // Bool which is true if all DNS names/txs are verifed, false if not
+  std::vector<ddns_object> ddns_list; // Storage of DDNS in blockchain
   
   
 };
