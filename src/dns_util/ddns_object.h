@@ -16,7 +16,9 @@ class ddns_object {
   bool verify_ddns(); // verfies DNS object
   std::string return_ddns_name(); // Returns DDNS name i.e mysite.42
   std::string return_ddns_host(); // Returns DDNS IP address
-  std::string return_ddns_hash(); // Returns hash associated with DDNS
+  std::string return_ddns_owner_hash(); // Returns owner hash associated with DDNS
+  std::string return_ddns_prefix_hash(); // Returns DDNS prefix hash
+  std::string return_ddns_prefix(); // Returns DDNS raw prefix
   
   private:
   // variables
