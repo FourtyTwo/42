@@ -20,6 +20,7 @@ class ddns_object {
   
   private:
   // variables
+  std::string ddns_prefix;
   std::string ddns_name;
   std::string ddns_host;
   std::string ddns_hash;
