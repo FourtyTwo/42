@@ -25,6 +25,5 @@ class ddns_object {
   std::string owner_hash; // replace with a signed message
   std::string ddns_name;
   std::string ddns_host;
-  std::string ddns_hash;
   int ddns_height; // Height when DDNS name was bought
   };
