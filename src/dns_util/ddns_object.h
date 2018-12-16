@@ -12,6 +12,7 @@ ddns_object.h - Data object for DDNS names
 class ddns_object {
   public:
   // methods
+  bool push_dns_info() // TODO
   bool verify_ddns(); // verfies DNS object
   std::string return_ddns_name(); // Returns DDNS name i.e mysite.42
   std::string return_ddns_host(); // Returns DDNS IP address
