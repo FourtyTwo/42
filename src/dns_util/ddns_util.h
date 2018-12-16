@@ -26,6 +26,8 @@ class ddns_util {
   bool verify_ddns_list(); // Verifys current DDNS list to make sure there isn't any invalid DDNS
   bool verify_ddns_transaction(ddns_transaction ddns_tx); // Verifies a certain DDNS transaction
   bool push_ddns_to_blockchain(ddns_object ddns_obj); // Verifies and pushes DDNS object to blockchain if valid
+  std::vector<dns_object> scan_blockchain_for_ddns_outputs(BlockchainDB db); // Scans blockchain for DDNS transactions and adds them to the list
+  
   
   
   private:
