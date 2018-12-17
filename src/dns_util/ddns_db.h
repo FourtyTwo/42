@@ -10,9 +10,21 @@ class ddns_db {
   public:
   // methods
   bool add_ddns_to_file(ddns_object ddns); // adds a DNS object to the ddns db if possible
-  bool verify_ddns_db(); // verifies all known domain names
+  bool verify_ddns_db(); // verifies all known domain names - stuff can't really be verifed yet
   bool get_ddns_from_peer(); // todo
   private:
   // variables
+  std::vector<ddns_object> ddns_db_list; // Store all the dns in this then write it to a file
   
 }
+
+/*
+
+Just to note my current thought process with how DNS names are going to be verifed in two ways
+Check 1: First, the daemon confirms that the transaction associated with the DNS name is correct and valid, basically just 
+checks it
+Check 2: Then, it checks the signed message (which will replace the owner_hash since using just hashes is far less secure) and if 
+the signed message is valid then it adds it to the DB. I think that's pretty fullproof but that needs to still be checked once its
+implemented fully
+
+*/
