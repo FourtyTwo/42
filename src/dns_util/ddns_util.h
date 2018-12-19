@@ -25,7 +25,7 @@ class ddns_util {
   std::string return_dns_ip_by_name(std::string ddns_name); // Return DDNS IP by name
   std::string return_dns_ip_by_hash(std::string hash); // Returns DDNS IP by hash
   bool verify_ddns_list(); // Verifys current DDNS list to make sure there isn't any invalid DDNS
-  bool verify_ddns_transaction(ddns_transaction ddns_tx); // Verifies a certain DDNS transaction
+  bool verify_ddns_transaction(std::string ddns_tx); // Verifies a certain DDNS transaction - TODO - DNS_TRANSACTION CLASS or edited version of base tx class
   bool push_ddns_to_blockchain(ddns_object ddns_obj); // Verifies and pushes DDNS object to blockchain if valid
   std::vector<dns_object> scan_blockchain_for_ddns_outputs(BlockchainDB db); // Scans blockchain for DDNS transactions and adds them to the list
   
