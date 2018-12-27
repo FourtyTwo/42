@@ -6,12 +6,19 @@
 
 #include "ddns_object.h"
 
+/*
+
+    ddns_db.h - Database object for handling DDNS and DB
+
+*/
+
 class ddns_db {
   public:
   // methods
   bool add_ddns_to_file(ddns_object ddns); // adds a DNS object to the ddns db if possible
   bool verify_ddns_db(); // verifies all known domain names - stuff can't really be verifed yet
   bool get_ddns_from_peer(); // todo
+  ddns_object return_ddns_from_name(std::string name); // returns DDNS object from DB based upon inputed DNS name i.e (coin42.42, frty.cnpools.42 etc etc)
   private:
   // variables
   std::vector<ddns_object> ddns_db_list; // Store all the dns in this then write it to a file
