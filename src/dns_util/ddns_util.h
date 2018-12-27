@@ -17,7 +17,7 @@ currently in the blockchain, pushing a ddns name into the blockchain etc etc
 class ddns_util {
   public:
   // methods
-  bool load_dns_from_db(); // Should be ran at startup to put all DNS information into a vector or something so that it can be accessed quickly
+  bool load_dns_from_db(ddns_db db_object); // Should be ran at startup to put all DNS information into a vector or something so that it can be accessed quickly
   int return_ddns_count(); // Returns the current count of all DNS names in the blockchain 
   std::vector<dns_object> return_all_known_dns(); // Returns all known DDNS names in the blockchain into a vector
   ddns_object return_dns_info_by_hash(std::string hash); // Returns DDNS object by DDNS hash
