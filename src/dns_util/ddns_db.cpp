@@ -75,8 +75,7 @@ ddns_object ddns_db::return_ddns_from_name(std::string name)
             final.push_ddns_info("3", ddns_load.return_ddns_host(), ddns_load.return_ddns_name()); // 3 is there for testing
         } 
   
-        // Checking further 
-        file_obj.read((char*)&obj, sizeof(obj)); 
+        file_output.read((char*)&ddns_load, sizeof(ddns_load)); 
        } 
        // check if it was found
        if(found_ddns == true)
@@ -107,8 +106,7 @@ ddns_object ddns_db::return_ddns_from_hash(std::string hash)
             final.push_ddns_info("3", ddns_load.return_ddns_host(), ddns_load.return_ddns_name()); // 3 is there for testing
         } 
   
-        // Checking further 
-        file_obj.read((char*)&obj, sizeof(obj)); 
+        file_output.read((char*)&load_object, sizeof(load_object)); 
        } 
        // check if it was found
        if(found_ddns == true)
@@ -122,5 +120,29 @@ ddns_object ddns_db::return_ddns_from_hash(std::string hash)
        }
 }
 
+// This method basically just loads all DDNS from db into a vector and then returns it
+std::vector<ddns_object> ddns_db::load_and_return_ddns_db()
+{
+    std::ifstream file_output;
+    std::vector<ddns_object> return_vector;
+    file_output.open("ddns.db", ios::in); 
+    ddns_object load; // object that loads everything into vector
+    ddns_object final;
+    file_output.read((char*)&load, sizeof(load)); 
+    while (!file_output.eof()) 
+    { 
+         
+        if (0 == 0) // because
+        { 
+            final.push_ddns_info("3", load.return_ddns_host(), load.return_ddns_name()); // 3 is there for testing
+            return_vector.push_back(final);
+            
+        } 
+  
+        file_output.read((char*)&load, sizeof(load)); 
+    } 
+    // return vector then bruh
+    return return_vector;
+}
 
 
