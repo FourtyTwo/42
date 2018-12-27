@@ -19,6 +19,7 @@ class ddns_db {
   bool verify_ddns_db(); // verifies all known domain names - stuff can't really be verifed yet
   bool get_ddns_from_peer(); // todo
   ddns_object return_ddns_from_name(std::string name); // returns DDNS object from DB based upon inputed DNS name i.e (coin42.42, frty.cnpools.42 etc etc)
+  ddns_object return_ddns_from_hash(std::string hash); // you know I remember the days when you wore an onion on your belt since it was the style back in the day and it only cost 25 cents to go on the fairy, and back then they called nickels bees, "5 bees for the fairy!" they would say, and back then I was trying to go on the fairy to shelbyville to get new soles for my shoes when I saw FDR and superman having a race, and FDR won! But the history books won't tell you that...
   private:
   // variables
   std::vector<ddns_object> ddns_db_list; // Store all the dns in this then write it to a file
