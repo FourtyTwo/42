@@ -7,9 +7,11 @@
 #include "dns_util/ddns_util.h" // Header file for ddns_util definitions
 
 
-bool ddns_util::load_dns_from_db()
+bool ddns_util::load_dns_from_db(ddns_db db_object)
 {
- // TODO - IMPLEMENT WHEN ddns_db IS FINISHED   
+    std::vector<ddns_object> thingy = db_object.load_and_return_ddns_db();
+    ddns_list = thingy;
+    return true;
 }
 
 int ddns_util::return_dns_count()
