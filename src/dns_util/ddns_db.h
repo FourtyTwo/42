@@ -25,7 +25,7 @@ class ddns_db {
   // variables
   std::vector<ddns_object> ddns_db_list; // Store all the dns in this then write it to a file
   
-}
+};
 
 /*
 
