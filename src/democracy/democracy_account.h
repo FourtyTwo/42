@@ -28,4 +28,4 @@ class democracy_account {
     private:
     // variables
     std::string democracy_key;
-}
+};
