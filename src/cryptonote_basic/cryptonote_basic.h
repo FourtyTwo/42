@@ -159,13 +159,11 @@ namespace cryptonote
     // tx information
     size_t   version;
     uint64_t unlock_time;  //number of block (or time), used as a limitation like: spend this tx not early then block/time
-    bool is_dns_tx; // will this work?
-    dns_object dns_info; // no clue bruh
     std::vector<txin_v> vin;
     std::vector<tx_out> vout;
     //extra
     std::vector<uint8_t> extra;
-    // knock knock open up the door its real with non stop pop pop and stainless steel
+
     BEGIN_SERIALIZE()
       VARINT_FIELD(version)
       if(version == 0 || CURRENT_TRANSACTION_VERSION < version) return false;
@@ -195,7 +193,6 @@ namespace cryptonote
     mutable size_t blob_size;
 
     transaction();
-    void set_dns_test(); // dns test
     transaction(const transaction &t): transaction_prefix(t), hash_valid(false), blob_size_valid(false), signatures(t.signatures), rct_signatures(t.rct_signatures) { if (t.is_hash_valid()) { hash = t.hash; set_hash_valid(true); } if (t.is_blob_size_valid()) { blob_size = t.blob_size; set_blob_size_valid(true); } }
     transaction &operator=(const transaction &t) { transaction_prefix::operator=(t); set_hash_valid(false); set_blob_size_valid(false); signatures = t.signatures; rct_signatures = t.rct_signatures; if (t.is_hash_valid()) { hash = t.hash; set_hash_valid(true); } if (t.is_blob_size_valid()) { blob_size = t.blob_size; set_blob_size_valid(true); } return *this; }
     virtual ~transaction();
