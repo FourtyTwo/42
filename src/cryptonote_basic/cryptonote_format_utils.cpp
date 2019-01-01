@@ -1148,7 +1148,11 @@ namespace cryptonote
       return true;
     }
     blobdata bd = get_block_hashing_blob(b);
-    const int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+    int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+    if(b.major_version == 10)
+    {
+      	cn_variant = 10;	// ew
+    }
     crypto::cn_slow_hash(bd.data(), bd.size(), res, cn_variant);
     return true;
   }
