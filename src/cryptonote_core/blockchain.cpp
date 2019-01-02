@@ -88,7 +88,8 @@ static const struct {
   time_t time;
 } mainnet_hard_forks[] = {
   
-  { 10, 1, 0, 0 },  // chain almost instantly goes into hard fork version 9
+  { 8, 1, 0, 0 },  // chain almost instantly goes into hard fork version 9
+  { 10, 15000, 0, 0 }, // FYI This isn't the official hard fork date its just placeholder crap
 
 };
 
