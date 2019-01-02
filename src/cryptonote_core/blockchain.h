@@ -337,7 +337,7 @@ namespace cryptonote
      *
      * @return true if block template filled in successfully, else false
      */
-    bool create_block_template(block& b, const account_public_address& miner_address, difficulty_type& di, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce);
+    bool create_block_template(block& b, std::string miner_address, difficulty_type& di, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce);
 
     /**
      * @brief checks if a block is known about with a given hash
@@ -1052,7 +1052,7 @@ namespace cryptonote
 
     // block template cache
     block m_btc;
-    account_public_address m_btc_address;
+    std::string m_btc_address;
     blobdata m_btc_nonce;
     difficulty_type m_btc_difficulty;
     uint64_t m_btc_pool_cookie;
@@ -1411,6 +1411,6 @@ namespace cryptonote
      *
      * At some point, may be used to push an update to miners
      */
-    void cache_block_template(const block &b, const cryptonote::account_public_address &address, const blobdata &nonce, const difficulty_type &diff, uint64_t expected_reward, uint64_t pool_cookie);
+    void cache_block_template(const block &b, std::string address, const blobdata &nonce, const difficulty_type &diff, uint64_t expected_reward, uint64_t pool_cookie);
   };
 }  // namespace cryptonote

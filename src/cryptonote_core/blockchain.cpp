@@ -88,8 +88,7 @@ static const struct {
   time_t time;
 } mainnet_hard_forks[] = {
   
-  { 8, 1, 0, 0 },  // chain almost instantly goes into hard fork version 8
-  { 10, 15000, 0, 0 }, // FYI This isn't the official hard fork date its just placeholder crap
+  { 10, 1, 0, 0 },  // chain almost instantly goes into hard fork version 9
 
 };
 
@@ -1214,7 +1213,7 @@ uint64_t Blockchain::return_blockchain_height()
 }
 
 
-bool Blockchain::create_block_template(block& b, const account_public_address& miner_address, difficulty_type& diffic, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce)
+bool Blockchain::create_block_template(block& b, std::string miner_address, difficulty_type& diffic, uint64_t& height, uint64_t& expected_reward, const blobdata& ex_nonce)
 {
   LOG_PRINT_L3("Blockchain::" << __func__);
   size_t median_weight;
@@ -1381,8 +1380,9 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
     MDEBUG("Creating block template: miner tx weight " << coinbase_weight <<
         ", cumulative weight " << cumulative_weight << " is now good");
 #endif
-
-    cache_block_template(b, miner_address, ex_nonce, diffic, expected_reward, pool_cookie);
+    // shrug
+    std::string addr = miner_address;
+    cache_block_template(b, addr, ex_nonce, diffic, expected_reward, pool_cookie);
     return true;
   }
   LOG_ERROR("Failed to create_block_template with " << 10 << " tries");
@@ -4550,7 +4550,7 @@ void Blockchain::invalidate_block_template_cache()
   m_btc_valid = false;
 }
 
-void Blockchain::cache_block_template(const block &b, const cryptonote::account_public_address &address, const blobdata &nonce, const difficulty_type &diff, uint64_t expected_reward, uint64_t pool_cookie)
+void Blockchain::cache_block_template(const block &b, std::string address, const blobdata &nonce, const difficulty_type &diff, uint64_t expected_reward, uint64_t pool_cookie)
 {
   MDEBUG("Setting block template cache");
   m_btc = b;
