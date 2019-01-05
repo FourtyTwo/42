@@ -101,6 +101,7 @@ namespace cryptonote
      }
     add_tx_pub_key_to_extra(tx, txkey.pub);
     if(!extra_nonce.empty())
+      int version = 3; // todo - change to tx version 3 if at hard fork version 10
       if(!add_extra_nonce_to_tx_extra(tx.extra, extra_nonce))
         return false;
     if (!sort_tx_extra(tx.extra, tx.extra))
@@ -178,6 +179,7 @@ namespace cryptonote
 
     CHECK_AND_ASSERT_MES(summary_amounts == block_reward, false, "Failed to construct miner tx, summary_amounts = " << summary_amounts << " not equal block_reward = " << block_reward);
 
+
     if (hard_fork_version >= 4)
       tx.version = 2;
     else
@@ -240,8 +242,22 @@ namespace cryptonote
     tx.extra = extra;
     crypto::public_key txkey_pub;
 
-    // if we have a stealth payment id, find it and encrypt it with the tx key now
-    std::vector<tx_extra_field> tx_extra_fields;
+   /*
+
+
+    Here just dont put a payment ID in the transactions at all since tx v3 doesn't allow that
+
+
+   */
+
+   std::vector<tx_extra_field> tx_extra_fields;
+   if(parse_tx_extra(tx.extra, tx_extra_fields) == false)
+   {
+      LOG_ERROR("Could not parse transaction extra fields, transaction rejected");
+      return false;
+   }
+
+  /*  This block of code doesn't need to exist cause fuck payment ids
     if (parse_tx_extra(tx.extra, tx_extra_fields))
     {
       tx_extra_nonce extra_nonce;
@@ -267,6 +283,7 @@ namespace cryptonote
           std::string extra_nonce;
           set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
           remove_field_from_tx_extra(tx.extra, typeid(tx_extra_nonce));
+          int version = 3; // todo - change to be ver 3 on hard fork 10
           if (!add_extra_nonce_to_tx_extra(tx.extra, extra_nonce))
           {
             LOG_ERROR("Failed to add encrypted payment id to tx extra");
@@ -281,6 +298,9 @@ namespace cryptonote
       LOG_ERROR("Failed to parse tx extra");
       return false;
     }
+
+   */
+
 
     struct input_generation_context_data
     {

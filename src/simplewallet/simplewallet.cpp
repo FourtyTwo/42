@@ -4850,7 +4850,8 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       r = add_extra_nonce_to_tx_extra(extra, extra_nonce);
       local_args.pop_back();
       payment_id_seen = true;
-      message_writer() << tr("Unencrypted payment IDs are bad for privacy: ask the recipient to use subaddresses instead");
+      fail_msg_writer() << tr("Error: Transactions with Payment IDs are no longer accepted on the network, transaction rejected");
+      return true;
     }
     else
     {
@@ -4862,6 +4863,8 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
         r = add_extra_nonce_to_tx_extra(extra, extra_nonce);
         local_args.pop_back();
         payment_id_seen = true;
+        fail_msg_writer() << tr("Error: Transactions with Payment IDs are no longer accepted on the network, transaction rejected");
+        return true;
       }
     }
 
@@ -4918,6 +4921,8 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
           return true;
         }
         info.has_payment_id = true;
+        fail_msg_writer() << tr("Error: Transactions with Payment IDs are no longer accepted on the network, transaction rejected");
+        return true;
       }
       de.amount = amount;
       ++i;
@@ -4965,11 +4970,14 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       if (info.has_payment_id)
       {
         set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, info.payment_id);
+        fail_msg_writer() << tr("Error: Transactions with Payment IDs are no longer accepted on the network, transaction rejected");
+        return true;
       }
       else if (tools::wallet2::parse_payment_id(payment_id_uri, payment_id))
       {
         set_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
-        message_writer() << tr("Unencrypted payment IDs are bad for privacy: ask the recipient to use subaddresses instead");
+        fail_msg_writer() << tr("Error: Transactions with Payment IDs are no longer accepted on the network, transaction rejected");
+        return true;
       }
       else
       {
@@ -4983,10 +4991,14 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
         return true;
       }
       payment_id_seen = true;
+      fail_msg_writer() << tr("Error: Transactions with Payment IDs are no longer accepted on the network, transaction rejected");
+      return true;
     }
 
     dsts.push_back(de);
   }
+
+/* // This code isn't needed since txs with pids are rejected from the network
 
   // prompt is there is no payment id and confirmation is required
   if (!payment_id_seen && m_wallet->confirm_missing_payment_id() && dsts.size() > num_subaddresses)
@@ -5001,6 +5013,8 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
        return true; 
      }
   }
+
+*/
 
   SCOPED_WALLET_UNLOCK();
 

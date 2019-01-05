@@ -656,6 +656,7 @@ namespace cryptonote
   bool core::handle_incoming_tx_pre(const blobdata& tx_blob, tx_verification_context& tvc, cryptonote::transaction &tx, crypto::hash &tx_hash, crypto::hash &tx_prefixt_hash, bool keeped_by_block, bool relayed, bool do_not_relay)
   {
     tvc = boost::value_initialized<tx_verification_context>();
+    const uint8_t hard_fork_version = m_blockchain_storage.get_current_hard_fork_version(); // if over v10 then check for pids in transactions and reject if found
 
     if(tx_blob.size() > get_max_tx_size())
     {
@@ -690,13 +691,53 @@ namespace cryptonote
     bad_semantics_txes_lock.unlock();
 
     uint8_t version = m_blockchain_storage.get_current_hard_fork_version();
-    const size_t max_tx_version = version == 1 ? 1 : 2;
+    const size_t max_tx_version = version == 1 ? 1 : 3;
     if (tx.version == 0 || tx.version > max_tx_version)
     {
       // v2 is the latest one we know
       tvc.m_verifivation_failed = true;
       return false;
     }
+    
+    /*
+
+      Check for payment ID in transactions here then reject it if its found for txs over hard fork version 10
+
+    */  
+
+    crypto::hash8 payment_id8 = crypto::null_hash8;
+    crypto::hash payment_id = crypto::null_hash;
+
+    cryptonote::tx_extra_nonce extra_nonce;
+    
+
+    std::vector<cryptonote::tx_extra_field> tx_extra_fields;    
+    bool tx_hash_pid = false;
+    if(hard_fork_version >= 10)
+  {
+    if (cryptonote::parse_tx_extra(tx.extra, tx_extra_fields)) // we could just move this to its own function later
+    {
+      if (find_tx_extra_field_by_type(tx_extra_fields, extra_nonce))
+      {
+        if(cryptonote::get_encrypted_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id8) == true)
+        {
+          LOG_PRINT_L1("Transaction is version 3 but has payment ID, transaction rejected");
+          tvc.m_verifivation_failed = true;
+          return false;
+        }
+        else if (cryptonote::get_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id))
+        {
+          LOG_PRINT_L1("Transaction is version 3 but has payment ID, transaction rejected");
+          tvc.m_verifivation_failed = true;
+          return false;
+        }
+      }
+    }
+  } 
+
+      
+
+    
 
     return true;
   }

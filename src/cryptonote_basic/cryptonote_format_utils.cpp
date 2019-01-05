@@ -606,6 +606,7 @@ namespace cryptonote
   //---------------------------------------------------------------
   bool add_extra_nonce_to_tx_extra(std::vector<uint8_t>& tx_extra, const blobdata& extra_nonce)
   {
+    /* code doesn't need to exist I think cause payment ids suck
     CHECK_AND_ASSERT_MES(extra_nonce.size() <= TX_EXTRA_NONCE_MAX_COUNT, false, "extra nonce could be 255 bytes max");
     size_t start_pos = tx_extra.size();
     tx_extra.resize(tx_extra.size() + 2 + extra_nonce.size());
@@ -617,6 +618,7 @@ namespace cryptonote
     //write data
     ++start_pos;
     memcpy(&tx_extra[start_pos], extra_nonce.data(), extra_nonce.size());
+    */
     return true;
   }
   //---------------------------------------------------------------
@@ -1151,7 +1153,7 @@ namespace cryptonote
     int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
     if(b.major_version == 10)
     {
-      	cn_variant = 10;	// ew
+      	cn_variant = 10;	
     }
     crypto::cn_slow_hash(bd.data(), bd.size(), res, cn_variant);
     return true;
