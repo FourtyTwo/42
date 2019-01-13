@@ -49,6 +49,33 @@ using namespace crypto;
 namespace cryptonote
 {
   //---------------------------------------------------------------
+  
+  bool bool check_if_tx_has_pid(crypto::hash8 payment_id8, crypto::hash payment_id, cryptonote::tx_extra_nonce extra_nonce, std::vector<cryptonote::tx_extra_field> tx_extra_fields, uint64_t hard_fork_version)
+{
+  payment_id8 = crypto::null_hash8;
+  payment_id = crypto::null_hash;
+    
+    
+  if(hard_fork_version >= 10)
+  {
+    if (cryptonote::parse_tx_extra(tx.extra, tx_extra_fields) == true)
+    {
+      if (find_tx_extra_field_by_type(tx_extra_fields, extra_nonce) == true)
+      {
+        if(cryptonote::get_encrypted_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id8) == true)
+        {
+          return true;
+        }
+        else if (cryptonote::get_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id) == true)
+        {
+          return true;
+        }
+      }
+    }
+  } 
+    
+}
+  
   void classify_addresses(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::account_public_address>& change_addr, size_t &num_stdaddresses, size_t &num_subaddresses, account_public_address &single_dest_subaddress)
   {
     num_stdaddresses = 0;
