@@ -705,34 +705,23 @@ namespace cryptonote
 
     */  
 
+    
+    
     crypto::hash8 payment_id8 = crypto::null_hash8;
     crypto::hash payment_id = crypto::null_hash;
 
     cryptonote::tx_extra_nonce extra_nonce;
     
 
-    std::vector<cryptonote::tx_extra_field> tx_extra_fields;    
-    if(hard_fork_version >= 10)
-  {
-    if (cryptonote::parse_tx_extra(tx.extra, tx_extra_fields)) // we could just move this entire block of code to its own function
+    std::vector<cryptonote::tx_extra_field> tx_extra_fields;   
+    
+    bool transaction_has_payment_id = cryptonote::check_if_tx_has_pid(payment_id8, payment_id, extra_nonce, tx_extra_fields, hard_fork_version);
+    if(transaction_has_payment_id == true)
     {
-      if (find_tx_extra_field_by_type(tx_extra_fields, extra_nonce))
-      {
-        if(cryptonote::get_encrypted_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id8) == true)
-        {
           LOG_PRINT_L1("Transactions with Payment IDs on Hard Fork version 10 are not allowed, transaction rejected.");
           tvc.m_verifivation_failed = true;
           return false;
-        }
-        else if (cryptonote::get_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id) == true)
-        {
-          LOG_PRINT_L1("Transactions with Payment IDs on Hard Fork version 10 are not allowed, transaction rejected.");
-          tvc.m_verifivation_failed = true;
-          return false;
-        }
-      }
     }
-  } 
 
       
 
