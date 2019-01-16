@@ -715,7 +715,7 @@ namespace cryptonote
 
     std::vector<cryptonote::tx_extra_field> tx_extra_fields;   
     
-    bool transaction_has_payment_id = cryptonote::check_if_tx_has_pid(payment_id8, payment_id, extra_nonce, tx_extra_fields, hard_fork_version);
+    bool transaction_has_payment_id = cryptonote::check_if_tx_has_pid(tx, payment_id8, payment_id, extra_nonce, tx_extra_fields, hard_fork_version);
     if(transaction_has_payment_id == true)
     {
           LOG_PRINT_L1("Transactions with Payment IDs on Hard Fork version 10 are not allowed, transaction rejected.");
