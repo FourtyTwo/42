@@ -38,7 +38,7 @@ namespace cryptonote
 {
   //---------------------------------------------------------------
   bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, std::string miner_address_str, transaction& tx, const blobdata& extra_nonce = blobdata(), size_t max_outs = 999, uint8_t hard_fork_version = 1);
-  bool check_if_tx_has_pid(crypto::hash8 payment_id8, crypto::hash payment_id, cryptonote::tx_extra_nonce extra_nonce, std::vector<cryptonote::tx_extra_field> tx_extra_fields, uint64_t hard_fork_version) // Is this the right place to move this method? i dunno
+  bool check_if_tx_has_pid(crypto::hash8 payment_id8, crypto::hash payment_id, cryptonote::tx_extra_nonce extra_nonce, std::vector<cryptonote::tx_extra_field> tx_extra_fields, uint64_t hard_fork_version); // Is this the right place to move this method? i dunno
   struct tx_source_entry
   {
     typedef std::pair<uint64_t, rct::ctkey> output_entry;
