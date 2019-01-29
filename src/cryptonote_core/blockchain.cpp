@@ -87,8 +87,15 @@ static const struct {
   uint8_t threshold;
   time_t time;
 } mainnet_hard_forks[] = {
-  
-  { 8, 1, 0, 0 },  // chain almost instantly goes into hard fork version 9
+  { 1, 1, 0, 1548805411 },  // 
+  { 2, 2, 0, 1548805411 },  // 
+  { 3, 3, 0, 1548805411 },  // 
+  { 4, 4, 0, 1548805411 },  //
+  { 5, 5, 0, 1548805411 },  // 
+  { 6, 6, 0, 1548805411 },  // 
+  { 7, 7, 0, 1548805411 },  // 
+  { 8, 8, 0, 1548805411 },  // 
+  { 9, 100000000, 0, 1548805411 },  //Set upgrade to 9 long time
 
 };
 
