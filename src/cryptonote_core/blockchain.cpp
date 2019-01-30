@@ -87,6 +87,7 @@ static const struct {
   uint8_t threshold;
   time_t time;
 } mainnet_hard_forks[] = {
+	/* may neeed this
   { 1, 1, 0, 1548805411 },  // 
   { 2, 2, 0, 1548805411 },  // 
   { 3, 3, 0, 1548805411 },  // 
@@ -96,7 +97,8 @@ static const struct {
   { 7, 7, 0, 1548805411 },  // 
   { 8, 8, 0, 1548805411 },  // 
   { 9, 100000000, 0, 1548805411 },  //Set upgrade to 9 long time
-
+  */
+  { 8, 1, 0, 0}, // i know how to code shutup
 };
 
 static const uint64_t mainnet_hard_fork_version_1_till = 1;
