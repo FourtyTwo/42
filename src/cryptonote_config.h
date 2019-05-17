@@ -50,6 +50,9 @@
 
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW               60
 
+#define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V2           500
+#define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V2            12
+
 // MONEY_SUPPLY - total number coins to be generated
 #define MONEY_SUPPLY                                    ((uint64_t)(-1)) // bruh defines be like
 #define EMISSION_SPEED_FACTOR_PER_MINUTE                (20)
@@ -83,6 +86,10 @@
 #define DIFFICULTY_CUT                                  60  // timestamps to cut after sorting
 #define DIFFICULTY_BLOCKS_COUNT                         DIFFICULTY_WINDOW + DIFFICULTY_LAG
 
+#define DIFFICULTY_WINDOW_V2                            60
+#define DIFFICULTY_LAG_V2                               0  // just for refrence
+#define DIFFICULTY_CUT_V2                               0  // just for refrence
+#define DIFFICULTY_BLOCKS_COUNT_V2                      DIFFICULTY_WINDOW_V2
 
 #define CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS_V1   DIFFICULTY_TARGET_V1 * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS
 #define CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS_V2   DIFFICULTY_TARGET_V2 * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS
@@ -140,6 +147,7 @@
 #define HF_VERSION_MIN_MIXIN_10                 9
 #define HF_VERSION_ENFORCE_RCT                  6
 #define HF_VERSION_PER_BYTE_FEE                 8
+#define HF_VERSION_DIFFICULTY_V2                10
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 
