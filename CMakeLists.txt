@@ -210,6 +210,8 @@ endif()
 list(INSERT CMAKE_MODULE_PATH 0
   "${CMAKE_SOURCE_DIR}/cmake")
 
+set(Boost_NO_BOOST_CMAKE ON)
+
 if (NOT DEFINED ENV{DEVELOPER_LOCAL_TOOLS})
   message(STATUS "Could not find DEVELOPER_LOCAL_TOOLS in env (not required)")
   set(BOOST_IGNORE_SYSTEM_PATHS_DEFAULT OFF)
