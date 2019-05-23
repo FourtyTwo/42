@@ -99,6 +99,7 @@ static const struct {
   { 9, 100000000, 0, 1548805411 },  //Set upgrade to 9 long time
   */
   { 8, 1, 0, 0}, // i know how to code shutup
+  { 9, 67000, 0, 0},
 };
 
 static const uint64_t mainnet_hard_fork_version_1_till = 1;

@@ -86,7 +86,7 @@
 #define DIFFICULTY_CUT                                  60  // timestamps to cut after sorting
 #define DIFFICULTY_BLOCKS_COUNT                         DIFFICULTY_WINDOW + DIFFICULTY_LAG
 
-#define DIFFICULTY_WINDOW_V2                            60
+#define DIFFICULTY_WINDOW_V2                            10
 #define DIFFICULTY_LAG_V2                               0  // just for refrence
 #define DIFFICULTY_CUT_V2                               0  // just for refrence
 #define DIFFICULTY_BLOCKS_COUNT_V2                      DIFFICULTY_WINDOW_V2
@@ -147,7 +147,7 @@
 #define HF_VERSION_MIN_MIXIN_10                 9
 #define HF_VERSION_ENFORCE_RCT                  6
 #define HF_VERSION_PER_BYTE_FEE                 8
-#define HF_VERSION_DIFFICULTY_V2                10
+#define HF_VERSION_DIFFICULTY_V2                9
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 
